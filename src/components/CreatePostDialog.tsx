@@ -4,6 +4,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { z } from "zod";
+
+const postSchema = z.object({
+  title: z.string().trim().min(1, "Title is required").max(200, "Title must be less than 200 characters"),
+  content: z.string().trim().min(1, "Content is required").max(10000, "Content must be less than 10,000 characters"),
+  category_id: z.string().uuid("Invalid category"),
+});
 import {
   Dialog,
   DialogContent,
@@ -51,10 +58,12 @@ const CreatePostDialog = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title || !content || !categoryId) {
+    const validation = postSchema.safeParse({ title, content, category_id: categoryId });
+    
+    if (!validation.success) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "Validation Error",
+        description: validation.error.errors[0].message,
         variant: "destructive",
       });
       return;
@@ -146,6 +155,7 @@ const CreatePostDialog = () => {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={loading}
+              maxLength={200}
             />
           </div>
           <div className="space-y-2">
@@ -157,6 +167,7 @@ const CreatePostDialog = () => {
               onChange={(e) => setContent(e.target.value)}
               disabled={loading}
               rows={8}
+              maxLength={10000}
             />
           </div>
           <div className="flex justify-end gap-2">

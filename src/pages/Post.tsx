@@ -12,6 +12,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { ArrowLeft, Loader2, Trash2 } from "lucide-react";
+import { z } from "zod";
+
+const commentSchema = z.object({
+  content: z.string().trim().min(1, "Comment cannot be empty").max(2000, "Comment must be less than 2,000 characters"),
+});
 import {
   AlertDialog,
   AlertDialogAction,
@@ -114,10 +119,12 @@ const Post = () => {
   const handleCommentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!newComment.trim()) {
+    const validation = commentSchema.safeParse({ content: newComment });
+    
+    if (!validation.success) {
       toast({
-        title: "Error",
-        description: "Comment cannot be empty",
+        title: "Validation Error",
+        description: validation.error.errors[0].message,
         variant: "destructive",
       });
       return;
@@ -266,6 +273,7 @@ const Post = () => {
                 onChange={(e) => setNewComment(e.target.value)}
                 disabled={submitting}
                 rows={4}
+                maxLength={2000}
               />
               <Button type="submit" disabled={submitting}>
                 {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

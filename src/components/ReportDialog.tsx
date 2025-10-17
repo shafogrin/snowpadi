@@ -2,6 +2,11 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { z } from "zod";
+
+const reportSchema = z.object({
+  reason: z.string().trim().min(1, "Please provide a reason").max(1000, "Reason must be less than 1,000 characters"),
+});
 import {
   Dialog,
   DialogContent,
@@ -27,10 +32,12 @@ const ReportDialog = ({ itemType, itemId }: ReportDialogProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!reason.trim()) {
+    const validation = reportSchema.safeParse({ reason });
+    
+    if (!validation.success) {
       toast({
-        title: "Error",
-        description: "Please provide a reason for reporting",
+        title: "Validation Error",
+        description: validation.error.errors[0].message,
         variant: "destructive",
       });
       return;
@@ -98,6 +105,7 @@ const ReportDialog = ({ itemType, itemId }: ReportDialogProps) => {
             onChange={(e) => setReason(e.target.value)}
             disabled={loading}
             rows={6}
+            maxLength={1000}
           />
           <div className="flex justify-end gap-2">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
