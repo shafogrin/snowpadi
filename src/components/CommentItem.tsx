@@ -4,6 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Flag, Trash2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import ReportDialog from "./ReportDialog";
+import UserAvatar from "./UserAvatar";
+import ReputationDisplay from "./ReputationDisplay";
+import UserBadges from "./UserBadges";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -25,7 +28,10 @@ interface CommentItemProps {
     created_at: string;
     author_id: string;
     profiles: {
+      id: string;
       username: string;
+      avatar_seed: string;
+      reputation: number;
     };
   };
   currentUserId?: string;
@@ -64,12 +70,19 @@ const CommentItem = ({ comment, currentUserId, isAdmin, onDelete }: CommentItemP
   return (
     <Card>
       <CardContent className="pt-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex items-center gap-2 text-sm">
-            <span className="font-medium">{comment.profiles.username}</span>
-            <span className="text-muted-foreground">
-              {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
-            </span>
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <UserAvatar seed={comment.profiles.avatar_seed} size="sm" />
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+              <span className="font-medium text-sm">{comment.profiles.username}</span>
+              <div className="flex items-center gap-2">
+                <ReputationDisplay reputation={comment.profiles.reputation} size="sm" />
+                <UserBadges userId={comment.profiles.id} limit={2} />
+                <span className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                </span>
+              </div>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             {currentUserId && (
@@ -98,7 +111,7 @@ const CommentItem = ({ comment, currentUserId, isAdmin, onDelete }: CommentItemP
             )}
           </div>
         </div>
-        <p className="text-foreground whitespace-pre-wrap">{comment.content}</p>
+        <p className="text-foreground whitespace-pre-wrap pl-12">{comment.content}</p>
       </CardContent>
     </Card>
   );

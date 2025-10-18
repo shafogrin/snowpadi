@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { LogOut, User, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import snowpadiLogo from "@/assets/snowpadi-logo.jpeg";
+import UserAvatar from "./UserAvatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -47,7 +48,7 @@ const Navbar = () => {
   const fetchProfile = async (userId: string) => {
     const { data: profileData } = await supabase
       .from("profiles")
-      .select("*")
+      .select("*, user_badges(badge_id)")
       .eq("id", userId)
       .single();
 
@@ -90,8 +91,12 @@ const Navbar = () => {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon">
-                  <User className="h-4 w-4" />
+                <Button variant="ghost" size="icon" className="relative">
+                  {profile?.avatar_seed ? (
+                    <UserAvatar seed={profile.avatar_seed} size="sm" />
+                  ) : (
+                    <User className="h-4 w-4" />
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">

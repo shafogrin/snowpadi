@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { z } from "zod";
+import WelcomeModal from "@/components/WelcomeModal";
 
 const authSchema = z.object({
   email: z.string().email("Invalid email address").max(255, "Email too long"),
@@ -21,6 +22,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [newUsername, setNewUsername] = useState("");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -56,7 +59,7 @@ const Auth = () => {
 
     setLoading(true);
     
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -72,11 +75,27 @@ const Auth = () => {
         description: error.message,
         variant: "destructive",
       });
-    } else {
-      toast({
-        title: "Success!",
-        description: "Account created successfully. You can now sign in.",
-      });
+    } else if (data.user) {
+      // Fetch the newly created profile to get the username
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("id", data.user.id)
+        .single();
+      
+      if (profile) {
+        setNewUsername(profile.username);
+        // Check if user has seen welcome before
+        const hasSeenWelcome = localStorage.getItem("snowpadi_welcome_shown");
+        if (!hasSeenWelcome) {
+          setShowWelcome(true);
+        } else {
+          toast({
+            title: "Success!",
+            description: "Account created successfully.",
+          });
+        }
+      }
       setEmail("");
       setPassword("");
     }
@@ -116,7 +135,15 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <WelcomeModal 
+        open={showWelcome} 
+        onClose={() => {
+          setShowWelcome(false);
+          navigate("/");
+        }}
+        username={newUsername}
+      />
+      <Card className="w-full max-w-md animate-fade-in">
         <CardHeader className="text-center">
           <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
             SnowPadi

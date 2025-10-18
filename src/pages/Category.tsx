@@ -58,7 +58,7 @@ const Category = () => {
         .from("posts")
         .select(`
           *,
-          profiles (username),
+          profiles (id, username, avatar_seed, reputation),
           categories (name, slug, color),
           comments (count)
         `)

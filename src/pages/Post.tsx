@@ -5,6 +5,9 @@ import Navbar from "@/components/Navbar";
 import CategoryBadge from "@/components/CategoryBadge";
 import CommentItem from "@/components/CommentItem";
 import ReportDialog from "@/components/ReportDialog";
+import UserAvatar from "@/components/UserAvatar";
+import ReputationDisplay from "@/components/ReputationDisplay";
+import UserBadges from "@/components/UserBadges";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -82,7 +85,7 @@ const Post = () => {
       .from("posts")
       .select(`
         *,
-        profiles (username, id),
+        profiles (id, username, avatar_seed, reputation),
         categories (name, slug, color)
       `)
       .eq("id", id)
@@ -106,7 +109,7 @@ const Post = () => {
       .from("comments")
       .select(`
         *,
-        profiles (username)
+        profiles (id, username, avatar_seed, reputation)
       `)
       .eq("post_id", id)
       .order("created_at", { ascending: true });
@@ -221,14 +224,21 @@ const Post = () => {
         <Card className="mb-8">
           <CardHeader className="space-y-4">
             <div className="flex items-center justify-between flex-wrap gap-4">
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-3 flex-wrap flex-1">
                 <CategoryBadge category={post.categories} />
-                <span className="text-sm text-muted-foreground">
-                  by {post.profiles.username}
-                </span>
-                <span className="text-sm text-muted-foreground">
-                  {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
-                </span>
+                <div className="flex items-center gap-2">
+                  <UserAvatar seed={post.profiles.avatar_seed} size="sm" />
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                    <span className="text-sm font-medium">{post.profiles.username}</span>
+                    <div className="flex items-center gap-2">
+                      <ReputationDisplay reputation={post.profiles.reputation} size="sm" />
+                      <UserBadges userId={post.profiles.id} limit={2} />
+                      <span className="text-sm text-muted-foreground">
+                        {formatDistanceToNow(new Date(post.created_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 {user && <ReportDialog itemType="post" itemId={post.id} />}
