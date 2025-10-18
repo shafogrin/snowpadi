@@ -48,6 +48,11 @@ All colors MUST be HSL.
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(262 83% 58%), hsl(262 83% 68%));
     --gradient-hero: linear-gradient(135deg, hsl(262 90% 58% / 0.1), hsl(231 48% 48% / 0.1));
+    --gradient-card: linear-gradient(145deg, hsl(var(--card)), hsl(262 90% 98%));
+    
+    /* Shadows */
+    --shadow-glow: 0 0 40px hsl(262 83% 58% / 0.15);
+    --shadow-card: 0 4px 20px hsl(240 10% 10% / 0.08);
 
     --sidebar-background: 0 0% 98%;
 

@@ -27,20 +27,21 @@ const PostCard = ({ post }: PostCardProps) => {
 
   return (
     <Link to={`/post/${post.id}`}>
-      <Card className="hover:shadow-md transition-shadow cursor-pointer">
-        <CardHeader className="space-y-3">
+      <Card className="group relative overflow-hidden hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 hover:scale-[1.02] cursor-pointer border-border hover:border-primary/30">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        <CardHeader className="space-y-3 relative">
           <div className="flex items-center gap-2 flex-wrap">
             <CategoryBadge category={post.categories} />
             <span className="text-sm text-muted-foreground">
               by {post.profiles.username}
             </span>
           </div>
-          <h3 className="text-xl font-semibold line-clamp-2">{post.title}</h3>
+          <h3 className="text-xl font-semibold line-clamp-2 group-hover:text-primary transition-colors duration-300">{post.title}</h3>
         </CardHeader>
-        <CardContent>
+        <CardContent className="relative">
           <p className="text-muted-foreground line-clamp-3 mb-4">{post.content}</p>
           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 group-hover:text-primary transition-colors">
               <MessageSquare className="h-4 w-4" />
               <span>{commentCount} {commentCount === 1 ? 'comment' : 'comments'}</span>
             </div>
