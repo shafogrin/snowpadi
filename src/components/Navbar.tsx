@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { LogOut, User, Shield } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import snowpadiLogo from "@/assets/snowpadi-logo.jpeg";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,10 +78,12 @@ const Navbar = () => {
   return (
     <nav className="border-b bg-card">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2">
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-            SnowPadi
-          </h1>
+        <Link to="/" className="flex items-center space-x-2 group">
+          <img 
+            src={snowpadiLogo} 
+            alt="SnowPadi Logo" 
+            className="h-10 w-auto transition-transform group-hover:scale-105"
+          />
         </Link>
 
         <div className="flex items-center gap-4">
