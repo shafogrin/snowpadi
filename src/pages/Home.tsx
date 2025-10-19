@@ -13,50 +13,117 @@ const Home = () => {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<any>(null);
+  const [feedAlgorithm, setFeedAlgorithm] = useState<string>("latest");
+  const [hiddenCategories, setHiddenCategories] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchData();
-    
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        loadUserPreferences(session.user.id);
+      } else {
+        fetchData();
+      }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
+      if (session?.user) {
+        setTimeout(() => loadUserPreferences(session.user.id), 0);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
 
+  useEffect(() => {
+    if (feedAlgorithm || hiddenCategories.length > 0) {
+      fetchData();
+    }
+  }, [feedAlgorithm, hiddenCategories]);
+
+  const loadUserPreferences = async (userId: string) => {
+    try {
+      const { data } = await supabase
+        .from("user_preferences")
+        .select("feed_algorithm, hidden_categories")
+        .eq("user_id", userId)
+        .maybeSingle();
+
+      if (data) {
+        setFeedAlgorithm(data.feed_algorithm || "latest");
+        setHiddenCategories(data.hidden_categories || []);
+      }
+    } catch (error) {
+      console.error("Error loading preferences:", error);
+    } finally {
+      fetchData();
+    }
+  };
+
   const fetchData = async () => {
     setLoading(true);
     
-    // Fetch categories
-    const { data: categoriesData } = await supabase
-      .from("categories")
-      .select("*")
-      .order("name");
+    try {
+      // Fetch categories
+      const { data: categoriesData } = await supabase
+        .from("categories")
+        .select("*")
+        .order("name");
 
-    if (categoriesData) {
-      setCategories(categoriesData);
+      if (categoriesData) {
+        const visibleCategories = categoriesData.filter(
+          cat => !hiddenCategories.includes(cat.id)
+        );
+        setCategories(visibleCategories);
+      }
+
+      // Fetch posts with comment counts
+      const { data: postsData } = await supabase
+        .from("posts")
+        .select(`
+          *,
+          profiles (id, username, avatar_seed, reputation),
+          categories (name, slug, color),
+          comments (count)
+        `)
+        .order("created_at", { ascending: false });
+
+      if (postsData) {
+        let filteredPosts = postsData;
+        
+        // Filter by hidden categories
+        if (hiddenCategories.length > 0) {
+          filteredPosts = filteredPosts.filter(
+            post => !hiddenCategories.includes(post.category_id)
+          );
+        }
+
+        // Apply feed algorithm
+        const postsWithCommentCount = filteredPosts.map(post => ({
+          ...post,
+          comment_count: post.comments?.length || 0
+        }));
+
+        let sortedPosts = postsWithCommentCount;
+        if (feedAlgorithm === "popular") {
+          sortedPosts = [...postsWithCommentCount].sort(
+            (a, b) => b.comment_count - a.comment_count
+          );
+        } else if (feedAlgorithm === "recommended") {
+          sortedPosts = [...postsWithCommentCount].sort(
+            (a, b) => (b.comment_count + (b.profiles?.reputation || 0)) - 
+                     (a.comment_count + (a.profiles?.reputation || 0))
+          );
+        }
+
+        setPosts(sortedPosts);
+      }
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
     }
-
-    // Fetch posts with comment counts
-    const { data: postsData } = await supabase
-      .from("posts")
-      .select(`
-        *,
-        profiles (id, username, avatar_seed, reputation),
-        categories (name, slug, color),
-        comments (count)
-      `)
-      .order("created_at", { ascending: false });
-
-    if (postsData) {
-      setPosts(postsData);
-    }
-
-    setLoading(false);
   };
 
   return (

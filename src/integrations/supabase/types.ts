@@ -266,6 +266,48 @@ export type Database = {
           },
         ]
       }
+      user_preferences: {
+        Row: {
+          created_at: string
+          email_notifications: boolean
+          feed_algorithm: string
+          hidden_categories: string[] | null
+          id: string
+          in_app_notifications: boolean
+          notify_on_comment: boolean
+          notify_on_popular: boolean
+          notify_on_reply: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean
+          feed_algorithm?: string
+          hidden_categories?: string[] | null
+          id?: string
+          in_app_notifications?: boolean
+          notify_on_comment?: boolean
+          notify_on_popular?: boolean
+          notify_on_reply?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean
+          feed_algorithm?: string
+          hidden_categories?: string[] | null
+          id?: string
+          in_app_notifications?: boolean
+          notify_on_comment?: boolean
+          notify_on_popular?: boolean
+          notify_on_reply?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
