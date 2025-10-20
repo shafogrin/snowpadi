@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import PostCard from "@/components/PostCard";
 import CreatePostDialog from "@/components/CreatePostDialog";
 import CategoryBadge from "@/components/CategoryBadge";
+import Footer from "@/components/Footer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useNavigate } from "react-router-dom";
 
@@ -231,6 +232,8 @@ const Home = () => {
           )}
         </div>
       </div>
+      
+      <Footer />
     </div>
   );
 };
