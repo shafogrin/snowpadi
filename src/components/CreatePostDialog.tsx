@@ -119,26 +119,27 @@ const CreatePostDialog = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button size="sm" className="sm:text-base">
           <PlusCircle className="mr-2 h-4 w-4" />
-          Create Post
+          <span className="hidden xs:inline">Create Post</span>
+          <span className="xs:hidden">Post</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
-          <DialogTitle>Create a New Post</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="space-y-2">
+          <DialogTitle className="text-lg sm:text-xl">Create a New Post</DialogTitle>
+          <DialogDescription className="text-sm">
             Share your thoughts with the SnowPadi community
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category" className="text-sm">Category</Label>
             <Select value={categoryId} onValueChange={setCategoryId}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-60">
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.name}
@@ -148,7 +149,7 @@ const CreatePostDialog = () => {
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title" className="text-sm">Title</Label>
             <Input
               id="title"
               placeholder="Give your post a title"
@@ -156,25 +157,27 @@ const CreatePostDialog = () => {
               onChange={(e) => setTitle(e.target.value)}
               disabled={loading}
               maxLength={200}
+              className="text-sm sm:text-base"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
+            <Label htmlFor="content" className="text-sm">Content</Label>
             <Textarea
               id="content"
               placeholder="Share your thoughts..."
               value={content}
               onChange={(e) => setContent(e.target.value)}
               disabled={loading}
-              rows={8}
+              rows={6}
               maxLength={10000}
+              className="text-sm sm:text-base resize-none"
             />
           </div>
-          <div className="flex justify-end gap-2">
-            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} size="sm">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} size="sm">
               {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
               Post
             </Button>
